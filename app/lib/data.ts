@@ -197,7 +197,6 @@ export async function fetchFilteredCustomers(query: string) {
 		  customers.id,
 		  customers.name,
 		  customers.email,
-		  customers.image_url,
 		  COUNT(invoices.id) AS total_invoices,
 		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
 		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
