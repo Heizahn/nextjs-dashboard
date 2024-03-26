@@ -20,7 +20,7 @@ export default async function Page({
 
   const totalPages = await fetchInvoicesPages(query);
   return (
-    <div className="w-full">
+    <div className="w-full pt-6">
       <div className="flex w-full items-center justify-between">
         <h1 className={`${lusitana.className} text-2xl`}>Facturas</h1>
       </div>

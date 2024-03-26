@@ -13,7 +13,7 @@ export default async function Page({
   const customer = await fetchFilteredCustomers(query);
   return (
     <>
-      <CustomersTable customers={customer} />
+        <CustomersTable  customers={customer}/>
     </>
   );
 }

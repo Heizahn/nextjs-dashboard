@@ -18,7 +18,8 @@ export default async function CustomersTable({
   customers: FormattedCustomersTable[];
 }) {
   return (
-    <div className="w-full">
+    <div className="w-full ">
+      <header className='sticky top-0 z-10 bg-white pt-6'>
       <h1 className={`${lusitana.className} mb-8 text-xl md:text-2xl`}>
         Clientes
       </h1>
@@ -26,6 +27,7 @@ export default async function CustomersTable({
         <Search placeholder="Search customers..." />
         <CreateCustomer />
       </div>
+      </header>
       <div className="mt-6 flow-root">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full align-middle">
