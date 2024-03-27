@@ -1,42 +1,48 @@
 'use client';
+
 import { useState } from 'react';
+import { useFormState } from 'react-dom';
+import { createCustomer } from '@/app/lib/actions';
+import { Button } from '@/app/ui/button';
+import Link from 'next/link';
+
+
 
 const CreateCustomer = () => {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Aquí puedes manejar la lógica para enviar los datos del formulario
-  };
+  
+  const initialState = {message: null, error: {}}
+  const [state, dispatch] = useFormState(createCustomer, initialState)
 
-  const [tipoConexion, setTipoConexion] = useState('');
+  const [tipoConexion, setTipoConexion] = useState('antena');
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 p-4">
+    <form action={dispatch} className="grid grid-cols-1 gap-4 p-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="nombre">Nombre:</label>
+          <label htmlFor="name">Nombre:</label>
           <input
             type="text"
-            id="nombre"
-            name="nombre"
+            id="name"
+            name="name"
             className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="cedula">Cédula:</label>
+          <label htmlFor="idCard">Cédula:</label>
           <input
             type="text"
-            id="cedula"
-            name="cedula"
+            id="idCard"
+            name="idCard"
             className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="telefono">Teléfono:</label>
+          <label htmlFor="phone">Teléfono:</label>
           <input
             type="tel"
-            id="telefono"
-            name="telefono"
+            id="phone"
+            name="phone"
             className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
           />
         </div>
@@ -75,16 +81,15 @@ const CreateCustomer = () => {
         </div>
 
         <div>
-          <label htmlFor="tipo-conexion">Tipo de conexión:</label>
+          <label htmlFor="connectionType">Tipo de conexión:</label>
           <select
-            id="tipo-conexion"
-            name="tipo-conexion"
+            id="connectionType"
+            name="connectionType"
             className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
-            onChange={(e) => setTipoConexion(e.target.value)} // Actualiza el estado al cambiar la selección
+            onChange={(e) => setTipoConexion(e.target.value)}
           >
-            <option value="">Selecciona una opción</option>
             <option value="fibra">Fibra</option>
-            <option value="antena">Antena</option>
+            <option value="antena" selected={true}>Antena</option>
           </select>
         </div>
 
@@ -99,21 +104,41 @@ const CreateCustomer = () => {
         </div>
 
         <div>
-          <label htmlFor="coordenadas">Ubicación:</label>
+          <label htmlFor="location">Ubicación:</label>
           <input
             type="text"
-            id="coordenadas"
-            name="coordenadas"
+            id="location"
+            name="location"
             className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
           />
+        </div>
+
+        <div>
+          <label htmlFor="rb">Router:</label>
+          <select
+            id="rb"
+            name="rb"
+            className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
+          >
+            {tipoConexion === 'fibra' ? (
+              <>
+                {' '}
+                <option value="0.0.0.0" selected={true}>4011C</option>
+              </>
+            ) : (
+              <>
+                <option value="192.168.217.1" selected={true}>RB705LV</option>
+              </>
+            )}
+          </select>
         </div>
         {tipoConexion === 'fibra' && (
           <>
             <div>
-              <label htmlFor="caja">Caja:</label>
+              <label htmlFor="box">Caja:</label>
               <select
-                id="caja"
-                name="caja"
+                id="box"
+                name="box"
                 className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
               >
                 <option value="1T">1T</option>
@@ -136,10 +161,10 @@ const CreateCustomer = () => {
               </select>
             </div>
             <div>
-              <label htmlFor="puerto">Puerto:</label>
+              <label htmlFor="port">Puerto:</label>
               <select
-                id="puerto"
-                name="puerto"
+                id="port"
+                name="port"
                 className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
               >
                 <option value="1">1</option>
@@ -155,13 +180,14 @@ const CreateCustomer = () => {
           </>
         )}
       </div>
-      <div>
-        <button
-          type="submit"
-          className="focus:shadow-outline rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
+      <div className="mt-6 flex justify-end gap-4">
+      <Link
+          href="/dashboard/customers"
+          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
         >
-          Enviar
-        </button>
+          Cancelar
+        </Link>
+      <Button type="submit">Crear Cliente</Button>
       </div>
     </form>
   );

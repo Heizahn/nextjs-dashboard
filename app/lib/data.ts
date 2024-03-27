@@ -10,8 +10,7 @@ import {
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
-import { resolve } from 'path';
-import { set } from 'zod';
+
 
 export async function fetchRevenue() {
   // Add noStore() here to prevent the response from being cached.
@@ -31,9 +30,9 @@ export async function fetchLatestInvoices() {
   noStore();
   try {
     const data = await sql<LatestInvoiceRaw>`
-      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
+      SELECT invoices.amount, customers_old.name, customers_old.image_url, customers_old.email, invoices.id
       FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
+      JOIN customers_old ON invoices.customer_id = customers_old.id
       ORDER BY invoices.date DESC
       LIMIT 5`;
 
@@ -127,10 +126,10 @@ export async function fetchInvoicesPages(query: string) {
   try {
     const count = await sql`SELECT COUNT(*)
     FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
+    JOIN customers_old ON invoices.customer_id = customers_old.id
     WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
+      customers_old.name ILIKE ${`%${query}%`} OR
+      customers_old.email ILIKE ${`%${query}%`} OR
       invoices.amount::text ILIKE ${`%${query}%`} OR
       invoices.date::text ILIKE ${`%${query}%`} OR
       invoices.status ILIKE ${`%${query}%`}
@@ -177,7 +176,7 @@ export async function fetchCustomers() {
       SELECT
         id,
         name
-      FROM customers
+      FROM customers_old
       ORDER BY name ASC
     `;
 
@@ -194,19 +193,19 @@ export async function fetchFilteredCustomers(query: string) {
   try {
     const data = await sql<CustomersTableType>`
 		SELECT
-		  customers.id,
-		  customers.name,
-		  customers.email,
+		  customers_old.id,
+		  customers_old.name,
+		  customers_old.email,
 		  COUNT(invoices.id) AS total_invoices,
 		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
 		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-		FROM customers
-		LEFT JOIN invoices ON customers.id = invoices.customer_id
+		FROM customers_old
+		LEFT JOIN invoices ON customers_old.id = invoices.customer_id
 		WHERE
-		  customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`}
-		GROUP BY customers.id, customers.name, customers.email, customers.image_url
-		ORDER BY customers.name ASC
+		  customers_old.name ILIKE ${`%${query}%`} OR
+        customers_old.email ILIKE ${`%${query}%`}
+		GROUP BY customers_old.id, customers_old.name, customers_old.email, customers_old.image_url
+		ORDER BY customers_old.name ASC
 	  `;
 
     const customers = data.rows.map((customer) => ({
