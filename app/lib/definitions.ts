@@ -79,6 +79,18 @@ export type FormattedCustomersTable = {
 export type CustomerField = {
   id: string;
   name: string;
+  idcard: string;
+  phone: string;
+  ip: string;
+  plan: number;
+  connectiontype: string;
+  sector: string;
+  location: string;
+  rb: string;
+  status: string;
+  balance: number;
+  box: string;
+  port: string;
 };
 
 export type InvoiceForm = {

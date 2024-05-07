@@ -174,13 +174,16 @@ export async function fetchCustomers() {
   try {
     const data = await sql<CustomerField>`
       SELECT
-        id,
-        name
-      FROM customers_old
+        *
+      FROM customers
       ORDER BY name ASC
     `;
 
-    const customers = data.rows;
+    const customers = data.rows.map((customer) => ({
+      ...customer,
+      // Convert amount from cents to dollars
+      plan: customer.plan / 100,
+    }));
     return customers;
   } catch (err) {
     console.error('Database Error:', err);
@@ -191,27 +194,35 @@ export async function fetchCustomers() {
 export async function fetchFilteredCustomers(query: string) {
   noStore();
   try {
-    const data = await sql<CustomersTableType>`
+    const data = await sql<CustomerField>`
 		SELECT
-		  customers_old.id,
-		  customers_old.name,
-		  customers_old.email,
-		  COUNT(invoices.id) AS total_invoices,
-		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
-		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-		FROM customers_old
-		LEFT JOIN invoices ON customers_old.id = invoices.customer_id
+		  customers.id,
+      customers.name,
+      customers.idcard,
+      customers.phone,
+      customers.ip,
+      customers.plan,
+      customers.connectiontype,
+      customers.sector,
+      customers.location,
+      customers.balance,
+      customers.status,
+      customers.box,
+      customers.port
+		FROM customers
 		WHERE
-		  customers_old.name ILIKE ${`%${query}%`} OR
-        customers_old.email ILIKE ${`%${query}%`}
-		GROUP BY customers_old.id, customers_old.name, customers_old.email, customers_old.image_url
-		ORDER BY customers_old.name ASC
+		  customers.name ILIKE ${`%${query}%`} OR
+        customers.sector ILIKE ${`%${query}%`} OR
+        customers.phone ILIKE ${`%${query}%`} OR
+        customers.ip ILIKE ${`%${query}%`} OR
+        customers.idCard ILIKE ${`%${query}%`}
+		ORDER BY customers.name ASC
 	  `;
 
     const customers = data.rows.map((customer) => ({
       ...customer,
-      total_pending: formatCurrency(customer.total_pending),
-      total_paid: formatCurrency(customer.total_paid),
+      // total_pending: formatCurrency(customer.total_pending),
+      // total_paid: formatCurrency(customer.total_paid),
     }));
 
     return customers;

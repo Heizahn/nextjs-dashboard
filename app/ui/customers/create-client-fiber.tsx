@@ -1,13 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { useFormState } from 'react-dom';
 import { CreateCustomerFiber } from '@/app/lib/actionsCreateClientFiber';
 import { Button } from '@/app/ui/button';
 import Link from 'next/link';
 
 export default function NewCustomerFiber(){
-  const [tipoConexion, setTipoConexion] = useState('');
   const initialState = { message: null, errors: {} };
 
 
@@ -228,6 +226,25 @@ export default function NewCustomerFiber(){
                 </p>
               ))}
             </div>
+
+            <div>
+            {/*las letras de la MAC deben ser en mayúsculas al escribiarlas e */}
+          <label htmlFor="mac">MAC:</label>
+          <input
+            type="text"
+            id="mac"
+            name="mac"
+            className="focus:shadow-outline w-full appearance-none rounded border px-3 py-2 leading-tight text-gray-700 shadow focus:outline-none"
+            defaultValue={''}
+            aria-describedby="customer-error"
+          />
+          {state.errors?.mac &&
+              state.errors.mac.map((err) => (
+                <p className="mt-2 text-sm text-red-500" key={err}>
+                  {err}
+                </p>
+              ))}
+        </div>
       </div>
 
       <div className="mt-6 flex justify-end gap-4">

@@ -46,8 +46,8 @@ export async function CreateCustomerWireless(
 	const planInCent = plan * 100;
 	try {
 	  await sql`
-	  INSERT INTO customers (name, idCard, phone, ip, plan, connectionType, sector, location, rb)
-	  VALUES (${name}, ${idCard}, ${phone}, ${ip}, ${planInCent}, ${connectionType}, ${sector}, ${location}, ${rb})
+	  INSERT INTO customers (name, idCard, phone, ip, plan, connectionType, sector, location, rb, status, balance)
+	  VALUES (${name}, ${idCard}, ${phone}, ${ip}, ${planInCent}, ${connectionType}, ${sector}, ${location}, ${rb}, 'active', 0)
 	  `;
 	} catch (error) {
 	  return {

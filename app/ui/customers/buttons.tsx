@@ -5,7 +5,7 @@ import {
   CurrencyDollarIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { deleteInvoice } from '@/app/lib/actions';
+import { deleteCustomer } from './actions';
 
 export function CreateCustomer() {
   return (
@@ -31,9 +31,9 @@ export function UpdateCustomer({ id }: { id: string }) {
 }
 
 export function DeleteCustomer({ id }: { id: string }) {
-  const deleteInvoiceWithId = deleteInvoice.bind(null, id);
+  const deleteCustomerWithId = deleteCustomer.bind(null, id);
   return (
-    <form action={deleteInvoiceWithId}>
+    <form action={deleteCustomerWithId}>
       <button className="rounded-md border p-2 hover:bg-red-500">
         <span className="sr-only">Eliminar</span>
         <TrashIcon className="w-5" />

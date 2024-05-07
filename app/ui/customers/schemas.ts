@@ -13,6 +13,7 @@ export type StateCustomerFiber = {
     rb?: string[];
     box?: string[];
     port?: string[];
+    mac?: string[];
   };
   message: string | null;
 };
@@ -86,4 +87,7 @@ export const FormSchemaCustomerFiber = z.object({
   port: z.string().min(1, {
     message: 'Por favor seleccione un Puerto.',
   }),
+  mac: z.string().min(1, {
+    message: 'Por favor indique una MAC.',
+  })
 });

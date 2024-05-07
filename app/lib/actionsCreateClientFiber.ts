@@ -23,7 +23,8 @@ export async function CreateCustomerFiber(
 	  location: formData.get('location'),
 	  rb: formData.get('rb'),
 	  box: formData.get('box'),
-	  port: formData.get('port')
+	  port: formData.get('port'),
+	  mac: formData.get('mac'),
 	});
   
 	if (!(validatedFields.success)) {
@@ -44,18 +45,20 @@ export async function CreateCustomerFiber(
 	  location,
 	  rb,
 	  box,
-	  port
+	  port,
+	  mac
 	} = validatedFields.data;
 	
 	console.log(validatedFields.data)
 	const planInCent = plan * 100;
 	try {
 	  await sql`
-	  INSERT INTO customers (name, idCard, phone, ip, plan, connectionType, sector, location, rb, box, port)
-	  VALUES (${name}, ${idCard}, ${phone}, ${ip}, ${planInCent}, ${connectionType}, ${sector}, ${location}, ${rb}, ${box}, ${port})
+	  INSERT INTO customers (name, idCard, phone, ip, plan, connectionType, sector, location, rb, box, port, mac, balance, status)
+	  VALUES (${name}, ${idCard}, ${phone}, ${ip}, ${planInCent}, ${connectionType}, ${sector}, ${location}, ${rb}, ${box}, ${port}, ${mac}, 0, 'active')
 	  `;
 
 	} catch (error) {
+	  console.log(error)
 	  return {
 		message: 'Database Error: Failed to Create Customer.',
 	  };

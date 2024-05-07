@@ -3,7 +3,7 @@ import { lusitana } from '@/app/ui/fonts';
 import Search from '@/app/ui/search';
 import {
   CustomersTableType,
-  FormattedCustomersTable,
+  CustomerField,
 } from '@/app/lib/definitions';
 import {
   CreateCustomer,
@@ -11,11 +11,12 @@ import {
   PayCustomer,
   UpdateCustomer,
 } from './buttons';
+import Link from 'next/link';
 
 export default async function CustomersTable({
   customers,
 }: {
-  customers: FormattedCustomersTable[];
+  customers: CustomerField[];
 }) {
   return (
     <div className="w-full ">
@@ -46,22 +47,22 @@ export default async function CustomersTable({
                           </div>
                         </div>
                         <p className="text-sm text-gray-500">
-                          {customer.email}
+                          {customer.idcard}
                         </p>
                       </div>
                     </div>
                     <div className="flex w-full items-center justify-between border-b py-5">
                       <div className="flex w-1/2 flex-col">
-                        <p className="text-xs">Pendiente</p>
-                        <p className="font-medium">{customer.total_pending}</p>
+                        <p className="text-xs">Plan</p>
+                        <p className="font-medium">{customer.plan.toString().replace(/\B(?=(\d{2})+(?!\d))/g, ",")}</p>
                       </div>
                       <div className="flex w-1/2 flex-col">
-                        <p className="text-xs">Pagado</p>
-                        <p className="font-medium">{customer.total_paid}</p>
+                        <p className="text-xs">Saldo</p>
+                        <p className="font-medium">{customer.balance === 0 ? customer.balance.toFixed(2).replace(".",",") : customer.balance.toString().replace(/\B(?=(\d{2})+(?!\d))/g, ",")}</p>
                       </div>
                     </div>
                     <div className="pt-4 text-sm">
-                      <p>{customer.total_invoices} Facturas</p>
+                      <p>Sector: <span className="font-medium px-4 ">{customer.sector.replace(customer.sector[0], customer.sector[0].toUpperCase())}</span></p>
                     </div>
                   </div>
                 ))}
@@ -69,20 +70,30 @@ export default async function CustomersTable({
               <table className="hidden min-w-full rounded-md text-gray-900 md:table">
                 <thead className="rounded-md bg-gray-50 text-left text-sm font-normal">
                   <tr>
+                    <th></th>
                     <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
                       Cliente
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
-                      Correo
+                      Cedula
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
-                      Facturas Totales
+                      Plan
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
-                      Pendiente Total
+                      IP
                     </th>
                     <th scope="col" className="px-4 py-5 font-medium">
-                      Total Pagado
+                      Sector
+                    </th>
+                    <th scope="col" className="px-4 py-5 font-medium">
+                      Ubicación
+                    </th>
+                    <th scope="col" className="px-4 py-5 font-medium">
+                      Tipo de conexion
+                    </th>
+                    <th scope="col" className="px-4 py-5 font-medium">
+                      Saldo
                     </th>
                     <th></th>
                   </tr>
@@ -91,22 +102,35 @@ export default async function CustomersTable({
                 <tbody className="divide-y divide-gray-200 text-gray-900">
                   {customers.map((customer) => (
                     <tr key={customer.id} className="group">
+                      <td className='whitespace-nowrap bg-white px-4 py-5'>
+                        {customer.status === 'active' ? <div className='w-3 h-3 rounded-full bg-green-500'></div> : customer.status === 'moroso' ? <div className='w-3 h-3 rounded-full bg-orange-500'></div> : <div className='w-3 h-3 rounded-full bg-red-500'></div>}
+                      </td>
                       <td className="whitespace-nowrap bg-white py-5 pl-4 pr-3 text-sm text-black group-first-of-type:rounded-md group-last-of-type:rounded-md sm:pl-6">
                         <div className="flex items-center gap-3">
                           <p>{customer.name}</p>
                         </div>
                       </td>
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                        {customer.email}
+                        {customer.idcard}
                       </td>
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                        {customer.total_invoices}
+                        {/** Convert amount from cents to dollars */}
+                        {customer.plan.toString().replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ' USD'}
                       </td>
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                        {customer.total_pending}
+                        <Link target='_blank' href={`http://${customer.ip}`}>{customer.ip} </Link>
                       </td>
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
-                        {customer.total_paid}
+                        {customer.sector.replace(customer.sector[0], customer.sector[0].toUpperCase())}
+                      </td>
+                      <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
+                        <Link target='_blank' href={`https://maps.app.goo.gl/${customer.location}`}>Abrir en google Maps</Link>
+                      </td>
+                      <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
+                        {(customer.connectiontype).replace(customer.connectiontype[0], customer.connectiontype[0].toUpperCase())}
+                      </td>
+                      <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
+                        {customer.balance.toString().replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ' USD'}
                       </td>
                       <td className="whitespace-nowrap bg-white py-3 pl-6 pr-3">
                         <div className="flex justify-end gap-3">
