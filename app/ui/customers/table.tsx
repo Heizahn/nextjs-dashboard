@@ -12,6 +12,7 @@ import {
   UpdateCustomer,
 } from './buttons';
 import Link from 'next/link';
+import { MapPinIcon } from '@heroicons/react/24/outline';
 
 export default async function CustomersTable({
   customers,
@@ -124,7 +125,7 @@ export default async function CustomersTable({
                         {customer.sector.replace(customer.sector[0], customer.sector[0].toUpperCase())}
                       </td>
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
-                        <Link target='_blank' href={`https://maps.app.goo.gl/${customer.location}`}>Abrir en google Maps</Link>
+                        <Link className='flex justify-center' target='_blank' href={`https://maps.app.goo.gl/${customer.location}`}><MapPinIcon  className='w-6'/></Link>
                       </td>
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
                         {(customer.connectiontype).replace(customer.connectiontype[0], customer.connectiontype[0].toUpperCase())}
