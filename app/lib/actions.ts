@@ -12,6 +12,7 @@ export type State = {
     customerId?: string[];
     amount?: string[];
     status?: string[];
+    reason?: string[]
   };
   message: string | null;
 };
@@ -28,6 +29,7 @@ const FormSchema = z.object({
   status: z.enum(['pending', 'paid'], {
     invalid_type_error: 'Por favor seleccione el estado d e la factura',
   }),
+  reason: z.string(), 
   date: z.string(),
 });
 
@@ -40,6 +42,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
     customerId: formData.get('customerId'),
     amount: formData.get('amount'),
     status: formData.get('status'),
+    reason: formData.get('reason'),
   });
 
   if (!validatedFields.success) {

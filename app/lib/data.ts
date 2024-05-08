@@ -11,7 +11,6 @@ import {
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
 
-
 export async function fetchRevenue() {
   // Add noStore() here to prevent the response from being cached.
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
@@ -30,9 +29,13 @@ export async function fetchLatestInvoices() {
   noStore();
   try {
     const data = await sql<LatestInvoiceRaw>`
-      SELECT invoices.amount, customers_old.name, customers_old.image_url, customers_old.email, invoices.id
+      SELECT 
+          customers.name, 
+          customers.idcard, 
+          invoices.amount, 
+          invoices.id
       FROM invoices
-      JOIN customers_old ON invoices.customer_id = customers_old.id
+      JOIN customers ON invoices.customer_id = customers.id
       ORDER BY invoices.date DESC
       LIMIT 5`;
 
@@ -94,19 +97,18 @@ export async function fetchFilteredInvoices(
 
   try {
     const invoices = await sql<InvoicesTable>`
-      SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
+    SELECT
+    invoices.id,
+    invoices.amount,
+    invoices.date,
+    invoices.status,
+    customers.name,
+    customers.idcard
+  FROM invoices
+  JOIN customers ON invoices.customer_id = customers.id
       WHERE
         customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
+        customers.idcard ILIKE ${`%${query}%`} OR
         invoices.amount::text ILIKE ${`%${query}%`} OR
         invoices.date::text ILIKE ${`%${query}%`} OR
         invoices.status ILIKE ${`%${query}%`}
@@ -126,10 +128,10 @@ export async function fetchInvoicesPages(query: string) {
   try {
     const count = await sql`SELECT COUNT(*)
     FROM invoices
-    JOIN customers_old ON invoices.customer_id = customers_old.id
+    JOIN customers ON invoices.customer_id = customers.id
     WHERE
-      customers_old.name ILIKE ${`%${query}%`} OR
-      customers_old.email ILIKE ${`%${query}%`} OR
+      customers.name ILIKE ${`%${query}%`} OR
+      customers.idcard ILIKE ${`%${query}%`} OR
       invoices.amount::text ILIKE ${`%${query}%`} OR
       invoices.date::text ILIKE ${`%${query}%`} OR
       invoices.status ILIKE ${`%${query}%`}

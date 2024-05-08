@@ -7,6 +7,7 @@ import {
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
+  BanknotesIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
 import { createInvoice } from '@/app/lib/actions';
@@ -83,7 +84,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
         </div>
 
         {/* Invoice Status */}
-        <fieldset>
+        <fieldset className="mb-4">
           <legend className="mb-2 block text-sm font-medium">
             Estado de la factura
           </legend>
@@ -131,7 +132,39 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               ))}
           </div>
         </fieldset>
+
+         {/* Reason Invoice */}
+      <div className="mb-4">
+          <label htmlFor="reason" className="mb-2 block text-sm font-medium">
+            Motivo
+          </label>
+          <div className="relative mt-2 rounded-md">
+            <div className="relative">
+              <input
+                id="reason"
+                name="reason"
+                type="text"
+                placeholder="Servio Mensual"
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+                aria-describedby="customer-error"
+              />
+              <BanknotesIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+            </div>
+            <div id="customer-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.reason &&
+                state.errors.reason.map((err) => (
+                  <p className="mt-2 text-sm text-red-500" key={err}>
+                    {err}
+                  </p>
+                ))}
+            </div>
+          </div>
+        </div>
       </div>
+
+     
+
+      {/* Submit Button */}
       <div className="mt-6 flex justify-end gap-4">
         <Link
           href="/dashboard/invoices"
