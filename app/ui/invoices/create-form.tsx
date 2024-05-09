@@ -7,10 +7,10 @@ import {
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
-  BanknotesIcon
+  BanknotesIcon,
 } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
-import { createInvoice } from '@/app/lib/actions';
+import { createInvoice } from '@/app/lib/actions/actions';
 import { useFormState } from 'react-dom';
 
 export default function Form({ customers }: { customers: CustomerField[] }) {
@@ -133,8 +133,8 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
           </div>
         </fieldset>
 
-         {/* Reason Invoice */}
-      <div className="mb-4">
+        {/* Reason Invoice */}
+        <div className="mb-4">
           <label htmlFor="reason" className="mb-2 block text-sm font-medium">
             Motivo
           </label>
@@ -161,8 +161,6 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
           </div>
         </div>
       </div>
-
-     
 
       {/* Submit Button */}
       <div className="mt-6 flex justify-end gap-4">

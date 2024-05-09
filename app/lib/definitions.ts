@@ -38,6 +38,8 @@ export type LatestInvoice = {
   idcard: string;
   amount: string;
   reason: string;
+  date: string;
+  status: 'pending' | 'paid';
 };
 
 // The database returns a number for amount, but we later format it to a string with the formatCurrency function
@@ -96,4 +98,5 @@ export type InvoiceForm = {
   customer_id: string;
   amount: number;
   status: 'pending' | 'paid';
+  reason: string;
 };

@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { updateBalanceInvoice } from './actionsBalance';
 
 export type State = {
   errors?: {
@@ -52,15 +53,27 @@ export async function createInvoice(prevState: State, formData: FormData) {
     };
   }
 
-  const { customerId, amount, status } = validatedFields.data;
+  const { customerId, amount, status, reason } = validatedFields.data;
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split('T')[0];
 
   try {
     await sql`
-      INSERT INTO invoices (customer_id, amount, status, date)
-      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+      INSERT INTO invoices (customer_id, amount, status, date, reason)
+      VALUES (${customerId}, ${amountInCents}, ${status}, ${date}, ${reason})
     `;
+
+    await updateBalanceInvoice(amount, customerId, status);
+    const reasonWords = reason?.toLowerCase().split(' ')
+
+    if (reasonWords.includes('mensualidad') && status === 'pending') {
+      await sql`
+        UPDATE customers
+        SET status = 'moroso'
+        WHERE id = ${customerId}
+      `;
+    }
+
   } catch (err) {
     return {
       message: 'Database Error: Failed to Create Invoice.',
@@ -80,6 +93,7 @@ export async function updateInvoice(
     customerId: formData.get('customerId'),
     amount: formData.get('amount'),
     status: formData.get('status'),
+    reason: formData.get('reason'),
   });
 
   if (!validatedFields.success) {
@@ -89,14 +103,14 @@ export async function updateInvoice(
     };
   }
 
-  const { customerId, amount, status } = validatedFields.data;
+  const { customerId, amount, status, reason } = validatedFields.data;
 
   const amountInCents = amount * 100;
 
   try {
     await sql`
     UPDATE invoices
-    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}, reason = ${reason}
     WHERE id = ${id}
   `;
   } catch (err) {

@@ -1,18 +1,17 @@
-'use server'
+'use server';
 
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { StateCustomerFiber, FormSchemaCustomerFiber} from '../ui/customers/schemas';
+import { StateCustomerWireless, FormSchemaCustomerWireless } from '../../ui/customers/schemas';
 
-const CustomerFiber = FormSchemaCustomerFiber.omit({ id: true });
+const CustomerWireless = FormSchemaCustomerWireless.omit({ id: true });
 
-
-export async function CreateCustomerFiber(
-	prevState: StateCustomerFiber,
+export async function CreateCustomerWireless(
+	prevState: StateCustomerWireless,
 	formData: FormData,
   ) {
-	const validatedFields = CustomerFiber.safeParse({
+	const validatedFields = CustomerWireless.safeParse({
 	  name: formData.get('name'),
 	  idCard: formData.get('idCard'),
 	  phone: formData.get('phone'),
@@ -22,9 +21,6 @@ export async function CreateCustomerFiber(
 	  sector: formData.get('sector'),
 	  location: formData.get('location'),
 	  rb: formData.get('rb'),
-	  box: formData.get('box'),
-	  port: formData.get('port'),
-	  mac: formData.get('mac'),
 	});
   
 	if (!(validatedFields.success)) {
@@ -44,21 +40,16 @@ export async function CreateCustomerFiber(
 	  sector,
 	  location,
 	  rb,
-	  box,
-	  port,
-	  mac
 	} = validatedFields.data;
 	
-	console.log(validatedFields.data)
+	
 	const planInCent = plan * 100;
 	try {
 	  await sql`
-	  INSERT INTO customers (name, idCard, phone, ip, plan, connectionType, sector, location, rb, box, port, mac, balance, status)
-	  VALUES (${name}, ${idCard}, ${phone}, ${ip}, ${planInCent}, ${connectionType}, ${sector}, ${location}, ${rb}, ${box}, ${port}, ${mac}, 0, 'active')
+	  INSERT INTO customers (name, idCard, phone, ip, plan, connectionType, sector, location, rb, status, balance)
+	  VALUES (${name}, ${idCard}, ${phone}, ${ip}, ${planInCent}, ${connectionType}, ${sector}, ${location}, ${rb}, 'active', 0)
 	  `;
-
 	} catch (error) {
-	  console.log(error)
 	  return {
 		message: 'Database Error: Failed to Create Customer.',
 	  };

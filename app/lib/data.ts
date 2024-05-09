@@ -33,6 +33,8 @@ export async function fetchLatestInvoices() {
           customers.name, 
           customers.idcard, 
           invoices.amount, 
+          invoices.date,
+          invoices.status,
           invoices.id
       FROM invoices
       JOIN customers ON invoices.customer_id = customers.id
@@ -48,6 +50,24 @@ export async function fetchLatestInvoices() {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch the latest invoices.');
+  }
+}
+
+export async function fetchInvoiceByIdCustomer(id: string) {
+  noStore();
+  try {
+    const data = await sql`
+      SELECT
+        invoices.id,
+        invoices.amount,
+        invoices.reason
+      FROM invoices
+      WHERE invoices.customer_id = ${id}
+    `
+
+    return data.rows
+  }catch(err){
+    console.error('Database Error:', err);
   }
 }
 
@@ -153,7 +173,8 @@ export async function fetchInvoiceById(id: string) {
         invoices.id,
         invoices.customer_id,
         invoices.amount,
-        invoices.status
+        invoices.status,
+        invoices.reason
       FROM invoices
       WHERE invoices.id = ${id};
     `;

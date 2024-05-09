@@ -1,7 +1,7 @@
 'use client';
 
 import { useFormState } from 'react-dom';
-import { CreateCustomerWireless } from '@/app/lib/actionsCreateClientWireless';
+import { CreateCustomerWireless } from '@/app/lib/actions/actionsCreateClientWireless';
 import { Button } from '@/app/ui/button';
 import Link from 'next/link';
 

@@ -1,17 +1,18 @@
-'use server';
+'use server'
 
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { StateCustomerWireless, FormSchemaCustomerWireless } from '../ui/customers/schemas';
+import { StateCustomerFiber, FormSchemaCustomerFiber} from '../../ui/customers/schemas';
 
-const CustomerWireless = FormSchemaCustomerWireless.omit({ id: true });
+const CustomerFiber = FormSchemaCustomerFiber.omit({ id: true });
 
-export async function CreateCustomerWireless(
-	prevState: StateCustomerWireless,
+
+export async function CreateCustomerFiber(
+	prevState: StateCustomerFiber,
 	formData: FormData,
   ) {
-	const validatedFields = CustomerWireless.safeParse({
+	const validatedFields = CustomerFiber.safeParse({
 	  name: formData.get('name'),
 	  idCard: formData.get('idCard'),
 	  phone: formData.get('phone'),
@@ -21,6 +22,9 @@ export async function CreateCustomerWireless(
 	  sector: formData.get('sector'),
 	  location: formData.get('location'),
 	  rb: formData.get('rb'),
+	  box: formData.get('box'),
+	  port: formData.get('port'),
+	  mac: formData.get('mac'),
 	});
   
 	if (!(validatedFields.success)) {
@@ -40,16 +44,21 @@ export async function CreateCustomerWireless(
 	  sector,
 	  location,
 	  rb,
+	  box,
+	  port,
+	  mac
 	} = validatedFields.data;
 	
-	
+	console.log(validatedFields.data)
 	const planInCent = plan * 100;
 	try {
 	  await sql`
-	  INSERT INTO customers (name, idCard, phone, ip, plan, connectionType, sector, location, rb, status, balance)
-	  VALUES (${name}, ${idCard}, ${phone}, ${ip}, ${planInCent}, ${connectionType}, ${sector}, ${location}, ${rb}, 'active', 0)
+	  INSERT INTO customers (name, idCard, phone, ip, plan, connectionType, sector, location, rb, box, port, mac, balance, status)
+	  VALUES (${name}, ${idCard}, ${phone}, ${ip}, ${planInCent}, ${connectionType}, ${sector}, ${location}, ${rb}, ${box}, ${port}, ${mac}, 0, 'active')
 	  `;
+
 	} catch (error) {
+	  console.log(error)
 	  return {
 		message: 'Database Error: Failed to Create Customer.',
 	  };

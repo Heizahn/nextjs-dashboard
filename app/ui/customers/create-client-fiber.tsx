@@ -1,7 +1,7 @@
 'use client';
 
 import { useFormState } from 'react-dom';
-import { CreateCustomerFiber } from '@/app/lib/actionsCreateClientFiber';
+import { CreateCustomerFiber } from '@/app/lib/actions/actionsCreateClientFiber';
 import { Button } from '@/app/ui/button';
 import Link from 'next/link';
 

@@ -3,6 +3,7 @@ import {
   PlusIcon,
   TrashIcon,
   CurrencyDollarIcon,
+  UserCircleIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { deleteCustomer } from './actions';
@@ -44,11 +45,20 @@ export function DeleteCustomer({ id }: { id: string }) {
 
 export function PayCustomer({ id }: { id: string }) {
   return (
-    <form>
-      <button className="rounded-md border p-2 hover:bg-green-400">
-        <span className="sr-only">Eliminar</span>
-        <CurrencyDollarIcon className="w-5" />
-      </button>
-    </form>
+    <Link href={`/dashboard/customers/${id}/pay`} className="rounded-md border p-2 hover:bg-gray-100">
+      <CurrencyDollarIcon className="w-5" />
+    </Link>
+  );
+}
+
+
+export function ViewCustomer({ id }: { id: string }) {
+  return (
+    <Link
+      href={`/dashboard/customers/${id}`}
+      className="rounded-md border p-2 hover:bg-gray-100"
+    >
+      <UserCircleIcon className="w-5" />
+    </Link>
   );
 }
