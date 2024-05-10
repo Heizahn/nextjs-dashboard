@@ -63,6 +63,25 @@ export async function createInvoice(prevState: State, formData: FormData) {
       VALUES (${customerId}, ${amountInCents}, ${status}, ${date}, ${reason})
     `;
 
+    const credit = (await sql`SELECT * FROM paymentcredit WHERE id_customer = ${customerId}`).rows[0];
+
+    if (credit) {
+      const invoice = (await sql`SELECT * FROM invoices WHERE date = ${date} AND customer_id = ${customerId}`).rows[0]
+
+      if (credit.amount >= invoice.amount){
+        await sql`UPDATE invoices SET status = 'paid' WHERE id = ${invoice.id}`
+        let result = credit.amount - invoice.amount
+
+        if (result > 0) {
+          await sql`DELETE FROM paymentcredit WHERE id_customer = ${customerId}`
+
+          await sql`INSET INTO paids (id_customer, amount, date,) VALUES (${customerId}, ${result}, ${date})`
+        } else if (result === 0) {
+          await sql`DELETE FROM paymentcredit WHERE id_customer = ${customerId}`
+        }
+      }
+    }
+
     await updateBalanceInvoice(amount, customerId, status);
     const reasonWords = reason?.toLowerCase().split(' ')
 

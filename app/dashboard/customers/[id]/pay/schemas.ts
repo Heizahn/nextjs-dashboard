@@ -13,9 +13,7 @@ export type StatePay = {
 export const PaySchema = z.object({
 	id: z.string(),
 	customerId: z.string(),
-	invoiceId: z.string({
-		invalid_type_error: 'Por favor seleccione una Factura.',
-	}),
+	invoiceId: z.string(),
 	amount: z.coerce.number().gt(0, { message: 'Por favor ingrese un monto.' }),
 	method: z.enum(['Pago Móvil', 'Divisa Efectivo', 'Efectivo Nacional'], {
 	  invalid_type_error: 'Por favor seleccione el método de pago.',

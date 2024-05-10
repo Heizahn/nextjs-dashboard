@@ -1,10 +1,11 @@
-import { fetchInvoiceByIdCustomer } from "@/app/lib/data";
+
+import { fetchInvoiceByIdPending } from "@/app/lib/data";
 import { FormPay } from "@/app/ui/customers/pay/FormPay";
 import { sql } from "@vercel/postgres";
 
 export default async function Page({params}: {params: {id: string}}) {
 	const id = params.id
-	const invoices = await fetchInvoiceByIdCustomer(id)
+	const invoices = await fetchInvoiceByIdPending(id)
 	const customer = await sql`SELECT name FROM customers WHERE id = ${id}`
 	return (
 		<>

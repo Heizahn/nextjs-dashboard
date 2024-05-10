@@ -1,7 +1,6 @@
 import { sql } from '@vercel/postgres';
 import {
   CustomerField,
-  CustomersTableType,
   InvoiceForm,
   InvoicesTable,
   LatestInvoiceRaw,
@@ -69,6 +68,13 @@ export async function fetchInvoiceByIdCustomer(id: string) {
   }catch(err){
     console.error('Database Error:', err);
   }
+}
+
+export async function fetchInvoiceByIdPending(id: string) {
+  noStore();
+  const invoices = await sql`SELECT id, reason FROM invoices WHERE invoices.customer_id = ${id} AND invoices.status = 'pending'`
+  if(invoices.rows.length === 0) return [{id: '', reason: ''}]
+  else return invoices.rows
 }
 
 export async function fetchCardData() {
