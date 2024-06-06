@@ -1,7 +1,7 @@
 'use server';
 
 import { sql } from "@vercel/postgres";
-import { StatePay, PaySchema } from "@/app/dashboard/customers/[id]/pay/schemas";
+import { StatePay, PaySchema, PaymentCredit} from "@/app/dashboard/customers/[id]/pay/schemas";
 import { revalidatePath } from "next/cache";
 import { redirect } from 'next/navigation';
 
@@ -53,7 +53,7 @@ export async function addPayment(prevState: StatePay, formData: FormData) {
 	const amountInCents = amount * 100;
 	const date = new Date().toISOString().split('T')[0];
 
-	if (invoiceId === '')  return redirect('/dashboard/customers');
+	
 	try {
 		await sql`
 			INSERT INTO paids (id_customer, amount, date, paymentmethod)
@@ -66,77 +66,52 @@ export async function addPayment(prevState: StatePay, formData: FormData) {
 		if(invoice.rows[0].amount === amountInCents){
 			await sql`UPDATE invoices SET status = 'paid' WHERE id = ${invoiceId}`
 		} else {
-			const credits = (await sql`SELECT * FROM paymentcredit WHERE id_customer = ${customerId}`).rows
+			await paymentCredit({id_customer: customerId, amount, date})
 
-			if(credits.length > 0){
-				let result = amountInCents + credits[0].amount
+			const credits = (await sql`SELECT amount FROM paymentcredit WHERE id_customer = ${customerId}`).rows
 
-				if (result >= invoice.rows[0].amount) {
-					await sql`UPDATE invoices SET status = 'paid' WHERE id = ${invoiceId}`
+			if (credits.length > 1){
+				let result = 0
 
-					await sql`DELETE FROM paymentcredit WHERE id_customer = ${customerId}`
-					
-					await sql`INSET INTO paids (id_customer, amount, date,) VALUES (${customerId}, ${result}, ${date})`
+				credits.forEach(credit => result += credit.amount)
+				console.log(result)
+
+				const invoice = (await sql`SELECT * FROM invoices WHERE id=${invoiceId}`).rows[0]
+
+				if (result >= invoice.amount){
+					await sql`UPDATE invoices SET status='paid' WHeRE id=${invoiceId}`
+					await sql`DELETE FROM paymentcredit WHERE id_customer=${customerId}`
+					await paymentCredit({id_customer: customerId, amount: result, date})
 				} else {
-					await sql`DELETE FROM paymentcredit WHERE id_customer = ${customerId}`
-
-					await sql`INSET INTO paids (id_customer, amount, date,) VALUES (${customerId}, ${result}, ${date})`
+					await paymentCredit({id_customer: customerId, amount: result, date})
 				}
-			} else {
-				
-				await paymentCredit(invoiceId, customerId)
 			}
-
-
 		}
 
 		const customer = await sql`SELECT balance FROM customers WHERE id = ${customerId}`;
 
 		if(customer.rows[0].balance >= 0 ){
-			await sql`UPDATE customers SET status = 'active' WHERE id = ${customerId}`
-		} else if(customer.rows[0].balance < 0){
-			await sql`UPDATE customers SET status = 'moroso' WHERE id = ${customerId}`
+			await sql`UPDATE customers SET status ='active' WHERE id = ${customerId}`
 		}
-
-
+		
+		if(customer.rows[0].balance < 0){
+			await sql`UPDATE customers SET status='moroso' WHERE id = ${customerId}`
+		}
 
 	} catch (err) {
 		return {
 			message: 'Database Error: Failed to Add Payment.',
 		}
-	}  
-	revalidatePath('/dashboard/customers');
-	redirect('/dashboard/customers');
+	} finally {
+		revalidatePath('/dashboard/customers');
+		redirect('/dashboard/customers');
+	}
 }
 
 
-
-async function paymentCredit(id_invoice: string, id_customer: string) {
+async function paymentCredit(credit: PaymentCredit) {
 	try {
-
-		const pays = (await sql`SELECT * FROM paids WHERE id_customer = ${id_customer}`).rows
-
-		const invoice = (await sql`SELECT amount FROM invoices WHERE id = ${id_invoice}`).rows[0]
-
-		let totalPays = 0
-
-
-		pays.forEach((pay: any) =>{
-			totalPays += pay.amount
-		})
-
-		if(totalPays >= invoice.amount){
-			await sql`UPDATE invoices SET status = 'paid' WHERE id = ${id_invoice}`
-
-			let result = totalPays - invoice.amount
-
-			if (result > 0){
-				const date = new Date().toISOString().split('T')[0];
-				await sql`INSERT INTO paymentcredit(amount, date, id_customer) VALUES(
-					${result}, ${date}, ${id_customer}
-				)`
-			}
-		}
+		await sql`INSERT INTO paymentcredit(id_customer, amount, date) VALUES (${credit.id_customer}, ${credit.amount * 100}, ${credit.date})`
 	} catch(err) {
 		console.error('Database Error:', err);
 	}

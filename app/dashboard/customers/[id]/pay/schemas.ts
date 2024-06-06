@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export type StatePay = {
@@ -20,3 +21,9 @@ export const PaySchema = z.object({
 	}),
 	date: z.string(),
   });
+
+export type PaymentCredit = {
+	id_customer: string, 
+	amount: number,
+	date: string
+}
